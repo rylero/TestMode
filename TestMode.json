@@ -2,7 +2,7 @@
     "fileName": "TestMode.json",
     "name": "TestMode",
     "version": "${version}",
-    "frcYear": "2026beta",
+    "frcYear": "2026",
     "uuid": "b91d988e-ba99-4bbb-ac68-4f09ef83431c",
     "mavenUrls": [
         "ThisNeedsToBeTheRootMavenUrl"
