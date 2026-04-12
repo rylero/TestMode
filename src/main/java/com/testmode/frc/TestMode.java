@@ -16,7 +16,6 @@ public class TestMode {
     if (initialized) {
       return;
     }
-    // TODO: add initialization logic here
     initialized = true;
   }
 
@@ -27,6 +26,17 @@ public class TestMode {
    */
   public static boolean isInitialized() {
     return initialized;
+  }
+
+  /**
+   * Adds two numbers together.
+   *
+   * @param num1 the first number
+   * @param num2 the second number
+   * @return the sum of num1 and num2
+   */
+  public static double add(double num1, double num2) {
+    return num1 + num2;
   }
 
   private TestMode() {}
