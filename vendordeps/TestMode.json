@@ -7,8 +7,13 @@
     "mavenUrls": [
         "ThisNeedsToBeTheRootMavenUrl"
     ],
-    "jsonUrl": "https://rylero.github.io/TestMode/TestMode.json",
+    "jsonUrl": "InsertSomeUrlHere",
     "javaDependencies": [
+        {
+            "groupId": "${groupId}",
+            "artifactId": "${artifactId}-java",
+            "version": "${version}"
+        }
     ],
     "jniDependencies": [],
     "cppDependencies": []
