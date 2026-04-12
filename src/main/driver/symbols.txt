@@ -1,4 +1,0 @@
-JNI_OnLoad
-JNI_OnUnload
-Java_com_testmode_jni_TestModeJNI_initialize
-c_doThing

@@ -1,12 +1,9 @@
 package com.testmode.frc;
 
-import com.testmode.jni.TestModeJNI;
-
 /**
  * Example TestMode vendordep class.
  *
  * <p>This class demonstrates how a robot project would interact with the TestMode library.
- * Call {@link #initialize()} once during robot initialization to load the native driver.
  */
 public class TestMode {
   private static boolean initialized = false;
@@ -19,11 +16,7 @@ public class TestMode {
     if (initialized) {
       return;
     }
-    TestModeJNI.forceLoad();
-    int result = TestModeJNI.initialize();
-    if (result != 0) {
-      throw new RuntimeException("TestMode driver initialization failed with code: " + result);
-    }
+    // TODO: add initialization logic here
     initialized = true;
   }
 

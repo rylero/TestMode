@@ -1,13 +1,6 @@
-import edu.wpi.first.toolchain.*
-
 plugins {
-  id 'cpp'
   id 'java'
-  id 'google-test'
   id 'edu.wpi.first.wpilib.repositories.WPILibRepositoriesPlugin' version '2025.0'
-  id 'edu.wpi.first.NativeUtils' version '2026.0.1'
-  id 'edu.wpi.first.GradleJni' version '1.1.0'
-  id 'edu.wpi.first.GradleVsCode' version '2.1.0'
 }
 
 // WPILib Version
@@ -28,10 +21,6 @@ java {
 }
 var javaVersion = "17"
 
-// Apply C++ configuration
-apply from: 'config.gradle'
-
-// Apply Java configuration
 dependencies {
     implementation "edu.wpi.first.cscore:cscore-java:$wpilibVersion"
     implementation "edu.wpi.first.cameraserver:cameraserver-java:$wpilibVersion"
@@ -52,7 +41,6 @@ dependencies {
     testRuntimeOnly 'us.hebi.quickbuf:quickbuf-runtime:1.4'
 }
 
-// Set up java tests
 test {
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
@@ -60,10 +48,6 @@ test {
         events "failed"
         exceptionFormat = "full"
     }
-}
-
-if (project.hasProperty('onlylinuxathena') || project.hasProperty('onlylinuxarm32') || project.hasProperty('onlylinuxarm64') || project.hasProperty('onlywindowsarm64') || project.hasProperty('onlylinuxsystemcore')) {
-    test.enabled = false
 }
 
 tasks.withType(JavaCompile) {
@@ -76,106 +60,6 @@ javadoc {
     options {
         links "https://docs.oracle.com/en/java/javase/$javaVersion/docs/api/", 'https://github.wpilib.org/allwpilib/docs/release/java/'
     }
-}
-
-// Set up exports properly
-nativeUtils {
-  exportsConfigs {
-    // Main library is just default empty. This will export everything
-    TestMode {
-    }
-  }
-  privateExportsConfigs {
-    // Only export explicit symbols from driver library
-    TestModeDriver {
-      exportsFile = project.file("src/main/driver/symbols.txt")
-    }
-  }
-}
-
-ext.getCurrentArch = {
-    return NativePlatforms.desktop
-}
-
-def systemArch = getCurrentArch()
-
-model {
-  components {
-    TestMode(NativeLibrarySpec) {
-      sources {
-        cpp {
-          source {
-            srcDirs 'src/main/native/cpp'
-            include '**/*.cpp'
-          }
-          exportedHeaders {
-            srcDirs 'src/main/native/include'
-          }
-        }
-      }
-      binaries.all {
-        lib library: 'TestModeDriver', linkage: 'shared'
-      }
-      nativeUtils.useRequiredLibrary(it, 'wpilib_shared')
-    }
-
-    TestModeDriver(JniNativeLibrarySpec) {
-      enableCheckTask true
-      javaCompileTasks << compileJava
-      jniCrossCompileOptions << JniCrossCompileOptions(nativeUtils.wpi.platforms.roborio)
-      // Leave these for future proofing
-      jniCrossCompileOptions << JniCrossCompileOptions(nativeUtils.wpi.platforms.linuxarm32)
-      jniCrossCompileOptions << JniCrossCompileOptions(nativeUtils.wpi.platforms.linuxarm64)
-      sources {
-        cpp {
-          source {
-            srcDirs 'src/main/driver/cpp'
-            include '**/*.cpp'
-          }
-          exportedHeaders {
-            srcDirs 'src/main/driver/include'
-          }
-        }
-      }
-
-      nativeUtils.useRequiredLibrary(it, "driver_shared")
-    }
-  }
-  testSuites {
-    TestModeTest {
-        sources.cpp {
-            source {
-                srcDir 'src/test/native/cpp'
-                include '**/*.cpp'
-            }
-        }
-
-        binaries.all {
-          lib library: 'TestModeDriver', linkage: 'shared'
-
-          def arch = it.targetPlatform.name
-          if (systemArch == arch && it.buildType.name == 'debug') {
-            def filePath = it.tasks.install.installDirectory.get().toString() + File.separatorChar + 'lib'
-            test.dependsOn it.tasks.install
-            test.systemProperty 'java.library.path', filePath
-            test.environment 'LD_LIBRARY_PATH', filePath
-            test.workingDir filePath
-          }
-        }
-
-        nativeUtils.useRequiredLibrary(it, "wpilib_executable_shared", "googletest_static")
-    }
-
-    TestModeDriverTest {
-        sources.cpp {
-            source {
-                srcDir 'src/test/driver/cpp'
-                include '**/*.cpp'
-            }
-        }
-        nativeUtils.useRequiredLibrary(it, "wpilib_executable_shared", "googletest_static")
-    }
-  }
 }
 
 apply from: 'publish.gradle'
