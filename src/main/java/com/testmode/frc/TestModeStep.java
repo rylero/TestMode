@@ -21,4 +21,12 @@ public interface TestModeStep {
      * @return command representing the step execution
      */
     public Command runStep(Consumer<TestResult> resultConsumer);
+
+    /**
+     * Returns a {@link Command} that runs this step and records the measured velocity as
+     * the new baseline, overwriting any existing value. Does not produce a {@link TestResult}.
+     *
+     * @return command representing the baseline recording
+     */
+    public Command recordBaseline();
 }

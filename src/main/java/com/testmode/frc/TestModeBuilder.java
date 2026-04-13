@@ -95,7 +95,20 @@ public class TestModeBuilder {
         return this;
     }
 
-    public Command build() {
+    /**
+     * Builds a command that runs every step in baseline-recording mode, saving each measured
+     * velocity as the new baseline. Does not evaluate pass/fail and does not call any consumers.
+     *
+     * @return command that records baselines for all steps
+     */
+    public Command buildBaselineCommand() {
+        Command[] stepCommands = steps.stream()
+            .map(TestModeStep::recordBaseline)
+            .toArray(Command[]::new);
+        return Commands.sequence(stepCommands);
+    }
+
+    public Command buildTestCommand() {
         List<TestResult> results = new ArrayList<>();
         Consumer<TestResult> collector = results::add;
 

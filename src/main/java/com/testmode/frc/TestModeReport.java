@@ -90,7 +90,9 @@ public class TestModeReport implements Consumer<List<TestResult>> {
 
         sb.append("<div class=\"summary\">\n");
         sb.append("  <div class=\"badge badge-overall\">").append(overallStatus).append("</div>\n");
-        sb.append("  <div class=\"badge badge-pass\">").append(passCount).append(" PASS</div>\n");
+        if (passCount > 0) {
+            sb.append("  <div class=\"badge badge-pass\">").append(passCount).append(" PASS</div>\n");
+        }
         if (failCount > 0) {
             sb.append("  <div class=\"badge badge-fail\">").append(failCount).append(" FAIL</div>\n");
         }
