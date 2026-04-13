@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
+import edu.wpi.first.net.WebServer;
 
 /**
  * Generates an HTML report summarizing test mode results.
@@ -23,7 +24,7 @@ public class TestModeReport implements Consumer<List<TestResult>> {
 
     @Override
     public void accept(List<TestResult> results) {
-        generate(results);
+        serveReport(results);
     }
 
     /**
@@ -31,10 +32,15 @@ public class TestModeReport implements Consumer<List<TestResult>> {
      *
      * @param results list of results from each completed test step
      */
-    public static void generate(List<TestResult> results) {
+    public static void serveReport(List<TestResult> results) {
         String html = buildHtml(results);
         writeTo(PRIMARY_PATH, html);
         writeTo(USB_PATH, html);
+        WebServer.start(5800, html);
+    }
+
+    public static void stopWebServer() {
+        WebServer.stop(5800);
     }
 
     private static void writeTo(String path, String html) {
