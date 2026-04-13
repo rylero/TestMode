@@ -1,7 +1,7 @@
 {
     "fileName": "TestMode.json",
     "name": "TestMode",
-    "version": "${version}",
+    "version": "1.0.0",
     "frcYear": "2026",
     "uuid": "b91d988e-ba99-4bbb-ac68-4f09ef83431c",
     "mavenUrls": [
