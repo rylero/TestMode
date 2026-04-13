@@ -3,7 +3,8 @@ package com.testmode.frc;
 /**
  * Configuration for a single test step.
  *
- * <p>Defaults: voltage = 4 V, applyTime = 3 s, dataTime = 2 s, tolerance = 5%.
+ * <p>Defaults: voltage = 4 V, applyTime = 3 s, dataTime = 2 s, tolerance = 5%,
+ * targetPosition = 0, positionTolerance = 0.1, moveTimeout = 5 s.
  */
 public class TestStepConfig {
     /** Voltage applied to the motor during the step (volts). */
@@ -16,6 +17,12 @@ public class TestStepConfig {
     public String stepName;
     /** Acceptable fractional deviation from the baseline velocity (0.05 = 5%). */
     public double tolerance;
+    /** Target position to move to before applying voltage (positional steps only). */
+    public double targetPosition;
+    /** Acceptable error from {@code targetPosition} before proceeding (positional steps only). */
+    public double positionTolerance;
+    /** Maximum seconds to wait for the mechanism to reach position (positional steps only). */
+    public double moveTimeout;
 
     /**
      * Creates a config with the given name and default values.
@@ -28,6 +35,9 @@ public class TestStepConfig {
         this.applyTime = 3;
         this.dataTime = 2;
         this.tolerance = 0.05;
+        this.targetPosition = 0;
+        this.positionTolerance = 0.1;
+        this.moveTimeout = 5;
     }
 
     /**
@@ -71,6 +81,39 @@ public class TestStepConfig {
      */
     public TestStepConfig withTolerance(double tolerance) {
         this.tolerance = tolerance;
+        return this;
+    }
+
+    /**
+     * Sets the target position to move to before applying voltage (positional steps only).
+     *
+     * @param targetPosition desired mechanism position
+     * @return this config, for chaining
+     */
+    public TestStepConfig withTargetPosition(double targetPosition) {
+        this.targetPosition = targetPosition;
+        return this;
+    }
+
+    /**
+     * Sets the acceptable error from the target position before proceeding (positional steps only).
+     *
+     * @param positionTolerance acceptable position error
+     * @return this config, for chaining
+     */
+    public TestStepConfig withPositionTolerance(double positionTolerance) {
+        this.positionTolerance = positionTolerance;
+        return this;
+    }
+
+    /**
+     * Sets the maximum seconds to wait for the mechanism to reach position (positional steps only).
+     *
+     * @param moveTimeout timeout in seconds
+     * @return this config, for chaining
+     */
+    public TestStepConfig withMoveTimeout(double moveTimeout) {
+        this.moveTimeout = moveTimeout;
         return this;
     }
 }

@@ -47,7 +47,7 @@ public class TestModeFlywheelStep implements TestModeStep {
                 Preferences.initDouble(prefKey, averageVelocity);
                 double baselineVelocity = Preferences.getDouble(prefKey, averageVelocity);
                 boolean passes = Math.abs(averageVelocity - baselineVelocity) <= stepConfig.tolerance * averageVelocity;
-                resultConsumer.accept(new TestResult(passes, averageVelocity, baselineVelocity));
+                resultConsumer.accept(new TestResult(stepConfig.stepName, passes, averageVelocity, baselineVelocity, false, true));
             })
         );
     }
