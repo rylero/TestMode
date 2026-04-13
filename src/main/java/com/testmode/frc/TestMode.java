@@ -28,16 +28,5 @@ public class TestMode {
     return initialized;
   }
 
-  /**
-   * Adds two numbers together.
-   *
-   * @param num1 the first number
-   * @param num2 the second number
-   * @return the sum of num1 and num2
-   */
-  public static double add(double num1, double num2) {
-    return num1 + num2;
-  }
-
   private TestMode() {}
 }
