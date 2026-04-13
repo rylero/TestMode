@@ -36,7 +36,7 @@ private void configureTestMode() {
 }
 ```
 
-Call this from `robotInit()` or your container constructor, then select **Baseline** once on a healthy robot, and **Test** on subsequent matches to verify.
+Call this from `robotInit()` or your container constructor, then select **Baseline** once on a healthy robot, and **Test** on subsequent matches to verify. Run the command returned by the sendable chooser on `testInit()` in the same way you run an autonomous command.
 
 ---
 
