@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
+import java.util.Arrays;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -48,6 +49,36 @@ public class TestModeBuilder {
     }
 
     /**
+     * Adds a multi-flywheel test step that applies a single voltage and measures each motor's
+     * steady-state velocity independently. Results are reported as {@code stepName_0},
+     * {@code stepName_1}, etc.
+     *
+     * @param stepConfig         configuration for the step (voltage, timing, tolerance, name)
+     * @param setMotorVoltage    consumer that applies a voltage (in volts) to all motors
+     * @param getMotorVelocities list of suppliers returning each motor's current velocity
+     * @return this builder, for chaining
+     */
+    public TestModeBuilder withMultiFlywheelStep(TestStepConfig stepConfig, DoubleConsumer setMotorVoltage, List<DoubleSupplier> getMotorVelocities) {
+        steps.add(new TestModeMultiFlywheelStep(stepConfig, setMotorVoltage, getMotorVelocities));
+        return this;
+    }
+
+    /**
+     * Adds a multi-flywheel test step that applies a single voltage and measures each motor's
+     * steady-state velocity independently. Results are reported as {@code stepName_0},
+     * {@code stepName_1}, etc.
+     *
+     * @param stepConfig         configuration for the step (voltage, timing, tolerance, name)
+     * @param setMotorVoltage    consumer that applies a voltage (in volts) to all motors
+     * @param getMotorVelocities varargs of suppliers returning each motor's current velocity
+     * @return this builder, for chaining
+     */
+    public TestModeBuilder withMultiFlywheelStep(TestStepConfig stepConfig, DoubleConsumer setMotorVoltage, DoubleSupplier... getMotorVelocities) {
+        steps.add(new TestModeMultiFlywheelStep(stepConfig, setMotorVoltage, Arrays.asList(getMotorVelocities)));
+        return this;
+    }
+
+    /**
      * Adds a positional test step that moves to a target position before measuring velocity.
      * Target position, position tolerance, and move timeout are configured via
      * {@link TestStepConfig#withTargetPosition}, {@link TestStepConfig#withPositionTolerance},
@@ -69,6 +100,28 @@ public class TestModeBuilder {
         TestModePositionalStep step = new TestModePositionalStep(
             stepConfig, setMotorVoltage, getMotorVelocity, setPosition, getPosition);
         steps.add(step);
+        return this;
+    }
+
+    /**
+     * Adds a multi-motor positional test step that moves to a target position, then applies a
+     * single voltage and measures each motor's velocity independently. Results are reported as
+     * {@code stepName_0}, {@code stepName_1}, etc.
+     *
+     * @param stepConfig          configuration for voltage, timing, tolerance, position, and name
+     * @param setMotorVoltage     consumer that applies a voltage (volts) to all motors
+     * @param getMotorVelocities  list of suppliers returning each motor's current velocity
+     * @param setPosition         consumer that commands the mechanism to a position
+     * @param getPosition         supplier that returns the current mechanism position
+     * @return this builder, for chaining
+     */
+    public TestModeBuilder withMultiPositionalStep(
+            TestStepConfig stepConfig,
+            DoubleConsumer setMotorVoltage,
+            List<DoubleSupplier> getMotorVelocities,
+            DoubleConsumer setPosition,
+            DoubleSupplier getPosition) {
+        steps.add(new TestModeMultiPositionalStep(stepConfig, setMotorVoltage, getMotorVelocities, setPosition, getPosition));
         return this;
     }
 
