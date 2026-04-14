@@ -186,6 +186,17 @@ public class TestModeBuilder {
         return Commands.sequence(stepCommands);
     }
 
+    /**
+     * Builds a command that runs every step in test mode, compares measured velocities against
+     * saved baselines, evaluates any extra conditions added via {@link #withCondition}, and
+     * delivers results to all registered consumers.
+     *
+     * <p>Steps run sequentially. Conditions are evaluated after all steps complete. The overall
+     * pass/fail value passed to {@link #withOverallResultConsumer} is {@code true} only when
+     * every step and every condition passes.
+     *
+     * @return command that runs the full test sequence and reports results
+     */
     public Command buildTestCommand() {
         List<TestResult> results = new ArrayList<>();
         Consumer<TestResult> collector = results::add;
