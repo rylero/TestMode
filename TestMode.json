@@ -5,7 +5,7 @@
     "frcYear": "2026",
     "uuid": "b91d988e-ba99-4bbb-ac68-4f09ef83431c",
     "mavenUrls": [
-        "ThisNeedsToBeTheRootMavenUrl"
+        "https://rylero.github.io/TestMode/"
     ],
     "jsonUrl": "https://rylero.github.io/TestMode/TestMode.json",
     "javaDependencies": [

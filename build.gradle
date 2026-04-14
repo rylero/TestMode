@@ -8,7 +8,11 @@ ext.wpilibVersion = "2026.+"
 
 repositories {
   mavenCentral()
+  maven {
+    url = file("${System.getProperty('user.home')}/wpilib/2026/maven")
+  }
 }
+
 if (project.hasProperty('releaseMode')) {
   wpilibRepositories.addAllReleaseRepositories(project)
 } else {
