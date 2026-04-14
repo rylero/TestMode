@@ -1,7 +1,7 @@
 {
     "fileName": "TestMode.json",
     "name": "TestMode",
-    "version": "1.0.0",
+"version": "1.0.1",
     "frcYear": "2026",
     "uuid": "b91d988e-ba99-4bbb-ac68-4f09ef83431c",
     "mavenUrls": [
@@ -12,7 +12,7 @@
         {
             "groupId": "com.testmode.frc",
             "artifactId": "TestMode-java",
-            "version": "1.0.0"
+            "version": "1.0.1"
         }
     ],
     "jniDependencies": [],
