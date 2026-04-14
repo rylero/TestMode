@@ -59,6 +59,13 @@ public class TestModeReport implements Consumer<List<TestResult>> {
     }
 
     private static String buildHtml(List<TestResult> results) {
+        List<TestResult> conditions = new java.util.ArrayList<>();
+        List<TestResult> steps = new java.util.ArrayList<>();
+        for (TestResult r : results) {
+            if (r.isConditionCheck) conditions.add(r);
+            else steps.add(r);
+        }
+
         long passCount = results.stream().filter(r -> r.passed).count();
         long failCount = results.size() - passCount;
         String overallStatus = failCount == 0 ? "PASS" : "FAIL";
@@ -74,13 +81,14 @@ public class TestModeReport implements Consumer<List<TestResult>> {
         sb.append("<style>\n");
         sb.append("  body { font-family: 'Segoe UI', Arial, sans-serif; margin: 0; padding: 24px; background: #f5f5f5; color: #212121; }\n");
         sb.append("  h1 { margin: 0 0 4px 0; font-size: 1.8em; }\n");
+        sb.append("  h2 { margin: 28px 0 12px 0; font-size: 1.1em; color: #444; text-transform: uppercase; letter-spacing: 0.05em; }\n");
         sb.append("  .meta { color: #666; font-size: 0.9em; margin-bottom: 24px; }\n");
         sb.append("  .summary { display: flex; gap: 16px; margin-bottom: 28px; }\n");
         sb.append("  .badge { padding: 12px 24px; border-radius: 8px; font-weight: bold; font-size: 1.1em; color: #fff; }\n");
         sb.append("  .badge-overall { background: " + overallColor + "; font-size: 1.4em; }\n");
         sb.append("  .badge-pass { background: #2e7d32; }\n");
         sb.append("  .badge-fail { background: #c62828; }\n");
-        sb.append("  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }\n");
+        sb.append("  table { width: 100%; border-collapse: collapse; background: #fff; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 4px rgba(0,0,0,0.12); margin-bottom: 8px; }\n");
         sb.append("  th { background: #1565c0; color: #fff; padding: 12px 16px; text-align: left; font-size: 0.95em; }\n");
         sb.append("  td { padding: 11px 16px; border-bottom: 1px solid #e0e0e0; font-size: 0.95em; }\n");
         sb.append("  tr:last-child td { border-bottom: none; }\n");
@@ -104,38 +112,58 @@ public class TestModeReport implements Consumer<List<TestResult>> {
         }
         sb.append("</div>\n");
 
-        sb.append("<table>\n<thead>\n<tr>\n");
-        sb.append("  <th>Step</th>\n");
-        sb.append("  <th>Status</th>\n");
-        sb.append("  <th>Measured Velocity</th>\n");
-        sb.append("  <th>Baseline Velocity</th>\n");
-        sb.append("  <th>Deviation</th>\n");
-        sb.append("  <th>Ratio</th>\n");
-        sb.append("</tr>\n</thead>\n<tbody>\n");
-
-        for (TestResult r : results) {
-            double deviation = r.baselineVelocity != 0
-                ? (r.averageVelocity - r.baselineVelocity) / r.baselineVelocity * 100.0
-                : 0.0;
-            double ratio = r.baselineVelocity != 0
-                ? r.averageVelocity / r.baselineVelocity
-                : 1.0;
-            int barPct = (int) Math.min(100, Math.max(0, ratio * 100));
-            String barColor = r.passed ? "#2e7d32" : "#c62828";
-
-            sb.append("<tr>\n");
-            sb.append("  <td>").append(escape(r.stepName)).append("</td>\n");
-            sb.append("  <td class=\"").append(r.passed ? "status-pass" : "status-fail").append("\">")
-              .append(r.passed ? "PASS" : "FAIL").append("</td>\n");
-            sb.append("  <td>").append(String.format("%.2f", r.averageVelocity)).append("</td>\n");
-            sb.append("  <td>").append(String.format("%.2f", r.baselineVelocity)).append("</td>\n");
-            sb.append("  <td>").append(String.format("%+.1f%%", deviation)).append("</td>\n");
-            sb.append("  <td><div class=\"bar-wrap\"><div class=\"bar-fill\" style=\"width:")
-              .append(barPct).append("%;background:").append(barColor).append("\"></div></div></td>\n");
-            sb.append("</tr>\n");
+        if (!conditions.isEmpty()) {
+            sb.append("<h2>Conditions</h2>\n");
+            sb.append("<table>\n<thead>\n<tr>\n");
+            sb.append("  <th>Condition</th>\n");
+            sb.append("  <th>Status</th>\n");
+            sb.append("</tr>\n</thead>\n<tbody>\n");
+            for (TestResult r : conditions) {
+                sb.append("<tr>\n");
+                sb.append("  <td>").append(escape(r.stepName)).append("</td>\n");
+                sb.append("  <td class=\"").append(r.passed ? "status-pass" : "status-fail").append("\">")
+                  .append(r.passed ? "PASS" : "FAIL").append("</td>\n");
+                sb.append("</tr>\n");
+            }
+            sb.append("</tbody>\n</table>\n");
         }
 
-        sb.append("</tbody>\n</table>\n</body>\n</html>\n");
+        if (!steps.isEmpty()) {
+            sb.append("<h2>Motor Steps</h2>\n");
+            sb.append("<table>\n<thead>\n<tr>\n");
+            sb.append("  <th>Step</th>\n");
+            sb.append("  <th>Status</th>\n");
+            sb.append("  <th>Measured Velocity</th>\n");
+            sb.append("  <th>Baseline Velocity</th>\n");
+            sb.append("  <th>Deviation</th>\n");
+            sb.append("  <th>Ratio</th>\n");
+            sb.append("</tr>\n</thead>\n<tbody>\n");
+
+            for (TestResult r : steps) {
+                double deviation = r.baselineVelocity != 0
+                    ? (r.averageVelocity - r.baselineVelocity) / r.baselineVelocity * 100.0
+                    : 0.0;
+                double ratio = r.baselineVelocity != 0
+                    ? r.averageVelocity / r.baselineVelocity
+                    : 1.0;
+                int barPct = (int) Math.min(100, Math.max(0, ratio * 100));
+                String barColor = r.passed ? "#2e7d32" : "#c62828";
+
+                sb.append("<tr>\n");
+                sb.append("  <td>").append(escape(r.stepName)).append("</td>\n");
+                sb.append("  <td class=\"").append(r.passed ? "status-pass" : "status-fail").append("\">")
+                  .append(r.passed ? "PASS" : "FAIL").append("</td>\n");
+                sb.append("  <td>").append(String.format("%.2f", r.averageVelocity)).append("</td>\n");
+                sb.append("  <td>").append(String.format("%.2f", r.baselineVelocity)).append("</td>\n");
+                sb.append("  <td>").append(String.format("%+.1f%%", deviation)).append("</td>\n");
+                sb.append("  <td><div class=\"bar-wrap\"><div class=\"bar-fill\" style=\"width:")
+                  .append(barPct).append("%;background:").append(barColor).append("\"></div></div></td>\n");
+                sb.append("</tr>\n");
+            }
+            sb.append("</tbody>\n</table>\n");
+        }
+
+        sb.append("</body>\n</html>\n");
         return sb.toString();
     }
 

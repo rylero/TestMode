@@ -1,11 +1,12 @@
 package com.testmode.frc;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 import java.util.function.Consumer;
 import java.util.function.DoubleConsumer;
 import java.util.function.DoubleSupplier;
-import java.util.Arrays;
 
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
@@ -25,6 +26,8 @@ public class TestModeBuilder {
     private List<TestModeStep> steps;
     private List<Consumer<List<TestResult>>> testResultConsumers;
     private Consumer<Boolean> overallResultConsumer;
+    private List<String> conditionTitles;
+    private List<BooleanSupplier> conditionChecks;
 
     /**
      * Creates a new {@code TestModeBuilder} with an empty step list.
@@ -32,6 +35,8 @@ public class TestModeBuilder {
     public TestModeBuilder() {
         steps = new ArrayList<>();
         testResultConsumers = new ArrayList<>();
+        conditionTitles = new ArrayList<>();
+        conditionChecks = new ArrayList<>();
     }
 
     /**
@@ -126,6 +131,26 @@ public class TestModeBuilder {
     }
 
     /**
+     * Adds an extra condition that must be true for the overall test to pass.
+     * Conditions are evaluated when the test command runs and included in the report.
+     *
+     * <p>Example:
+     * <pre>{@code
+     * .withCondition("Left motor connected", leftMotor::isConnected)
+     * .withCondition("Gyro calibrated", gyro::isCalibrated)
+     * }</pre>
+     *
+     * @param title     human-readable label shown in the test report
+     * @param condition supplier that returns {@code true} if the condition is met
+     * @return this builder, for chaining
+     */
+    public TestModeBuilder withCondition(String title, BooleanSupplier condition) {
+        conditionTitles.add(title);
+        conditionChecks.add(condition);
+        return this;
+    }
+
+    /**
      * Adds a consumer that receives all test results after every step has completed.
      * Multiple consumers can be added and will each be called in order.
      *
@@ -170,6 +195,10 @@ public class TestModeBuilder {
             .toArray(Command[]::new);
 
         Command reportCommand = Commands.runOnce(() -> {
+            for (int i = 0; i < conditionTitles.size(); i++) {
+                boolean passed = conditionChecks.get(i).getAsBoolean();
+                results.add(TestResult.forCondition(conditionTitles.get(i), passed));
+            }
             boolean allPassed = results.stream().allMatch(r -> r.passed);
             for (Consumer<List<TestResult>> consumer : testResultConsumers) {
                 consumer.accept(results);

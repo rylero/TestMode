@@ -1,12 +1,12 @@
 package com.testmode.frc;
 
 /**
- * Holds the outcome of a single test step.
+ * Holds the outcome of a single test step or extra condition check.
  */
 public class TestResult {
-    /** Human-readable name of the test step that produced this result. */
+    /** Human-readable name of the test step or condition that produced this result. */
     public String stepName;
-    /** {@code true} if the measured velocity was within the configured tolerance of the baseline. */
+    /** {@code true} if the step/condition passed. */
     public boolean passed;
     /** Average motor velocity measured during the data-collection window. */
     public double averageVelocity;
@@ -16,12 +16,17 @@ public class TestResult {
     public boolean isPositionalTest;
     /**
      * {@code true} if the mechanism reached the start position before the move timeout.
-     * Always {@code true} for non-positional steps.
+     * Always {@code true} for non-positional steps and condition checks.
      */
     public boolean reachedStartPosition;
+    /**
+     * {@code true} if this result is from an extra condition check rather than a motor step.
+     * When {@code true}, velocity fields are not meaningful.
+     */
+    public boolean isConditionCheck;
 
     /**
-     * Creates a {@code TestResult}.
+     * Creates a {@code TestResult} for a motor step.
      *
      * @param stepName             human-readable name of the test step
      * @param passed               whether the step passed
@@ -38,5 +43,19 @@ public class TestResult {
         this.baselineVelocity = baselineVelocity;
         this.isPositionalTest = isPositionalTest;
         this.reachedStartPosition = reachedStartPosition;
+        this.isConditionCheck = false;
+    }
+
+    /**
+     * Creates a {@code TestResult} for an extra condition check.
+     *
+     * @param title  human-readable name of the condition
+     * @param passed whether the condition was met
+     * @return a condition-check result
+     */
+    public static TestResult forCondition(String title, boolean passed) {
+        TestResult r = new TestResult(title, passed, 0, 0, false, true);
+        r.isConditionCheck = true;
+        return r;
     }
 }
