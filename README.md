@@ -103,6 +103,18 @@ Same as multi-flywheel, but moves to a target position first. Position control i
 )
 ```
 
+### Extra Conditions
+
+For pass/fail checks that aren't velocity-based (sensor connectivity, calibration state, etc.):
+
+```java
+.withCondition("Left motor connected", leftMotor::isConnected)
+```
+
+Conditions are evaluated at the end of the test run and included in the overall pass/fail result. If any condition returns `false`, the overall test fails. The HTML report shows conditions in a separate **Conditions** section above the motor step results.
+
+Condition results have `isConditionCheck = true` in the `TestResult`; velocity fields are not meaningful for them.
+
 ---
 
 ## TestStepConfig
