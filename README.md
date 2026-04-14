@@ -68,6 +68,41 @@ For mechanisms that need to move to a position before testing (arm, elevator, et
 )
 ```
 
+### Multi-Flywheel Step
+
+For subsystems with multiple motors sharing a single voltage (e.g., a shooter with top and bottom rollers). One result is reported per motor, named `stepName_0`, `stepName_1`, etc.:
+
+```java
+// varargs form
+.withMultiFlywheelStep(
+    new TestStepConfig("shooter"),
+    shooter::setVoltage,
+    topMotor::getVelocityRPM,
+    bottomMotor::getVelocityRPM
+)
+
+// list form
+.withMultiFlywheelStep(
+    new TestStepConfig("shooter"),
+    shooter::setVoltage,
+    List.of(topMotor::getVelocityRPM, bottomMotor::getVelocityRPM)
+)
+```
+
+### Multi-Positional Step
+
+Same as multi-flywheel, but moves to a target position first. Position control is shared across all motors:
+
+```java
+.withMultiPositionalStep(
+    new TestStepConfig("arm").withTargetPosition(90.0).withPositionTolerance(2.0),
+    arm::setVoltage,
+    List.of(leftMotor::getVelocityRPM, rightMotor::getVelocityRPM),
+    arm::setPosition,
+    arm::getPosition
+)
+```
+
 ---
 
 ## TestStepConfig
@@ -136,4 +171,4 @@ new TestModeBuilder()
     .withOverallResultConsumer(passed -> System.out.println(passed ? "PASS" : "FAIL"))
 ```
 
-Steps run sequentially. All results are collected and passed to consumers at the end.
+Steps run sequentially. All results are collected and passed to consumers at the end. Multi-motor steps report one result per motor, so a two-motor `withMultiFlywheelStep` adds two entries to the results list.
