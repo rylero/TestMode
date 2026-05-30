@@ -25,6 +25,10 @@ java {
 }
 var javaVersion = "17"
 
+configurations {
+    nativeSimLibs
+}
+
 dependencies {
     implementation "edu.wpi.first.cscore:cscore-java:$wpilibVersion"
     implementation "edu.wpi.first.cameraserver:cameraserver-java:$wpilibVersion"
@@ -45,9 +49,22 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.13.4'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
     testRuntimeOnly 'us.hebi.quickbuf:quickbuf-runtime:1.4'
+
+    nativeSimLibs "edu.wpi.first.hal:hal-cpp:$wpilibVersion:linuxx86-64@zip"
+    nativeSimLibs "edu.wpi.first.wpiutil:wpiutil-cpp:$wpilibVersion:linuxx86-64@zip"
+    nativeSimLibs "edu.wpi.first.ntcore:ntcore-cpp:$wpilibVersion:linuxx86-64@zip"
+    nativeSimLibs "edu.wpi.first.wpinet:wpinet-cpp:$wpilibVersion:linuxx86-64@zip"
+}
+
+task extractNativeSimLibs(type: Copy) {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from { configurations.nativeSimLibs.collect { zipTree(it) } }
+    into layout.buildDirectory.dir("native-sim-libs")
 }
 
 test {
+    dependsOn extractNativeSimLibs
+    jvmArgs "-Djava.library.path=${buildDir}/native-sim-libs/linux/x86-64/shared"
     useJUnitPlatform()
     systemProperty 'junit.jupiter.extensions.autodetection.enabled', 'true'
     testLogging {
